@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+
 import { initializeDatabase } from './config/db.js';
 import githubRoutes from './routes/githubRoutes.js';
 
@@ -8,84 +9,125 @@ import githubRoutes from './routes/githubRoutes.js';
 dotenv.config();
 
 const app = express();
+
 const PORT = process.env.PORT || 5000;
 
-// Apply Middlewares
+/**
+ * =========================
+ * Middleware Configuration
+ * =========================
+ */
+
+// Enable CORS
 app.use(cors());
+
+// Parse JSON requests
 app.use(express.json());
 
-// Quick console request logger
+/**
+ * Simple Request Logger
+ */
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log(
+    `[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`
+  );
   next();
 });
 
-// API Routes
+/**
+ * =========================
+ * API Routes
+ * =========================
+ */
+
 app.use('/api/github', githubRoutes);
 
-// Root Endpoint (Quick diagnostics and index)
+/**
+ * =========================
+ * Root Route
+ * =========================
+ */
+
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Welcome to the GitHub Profile Analyzer API!',
-    status: 'Operational',
+    status: 'Running Successfully',
     endpoints: {
       analyzeProfile: {
         method: 'POST',
-        path: '/api/github/analyze/:username',
-        description: 'Fetch, analyze, and save/refresh public GitHub profile data'
+        path: '/api/github/analyze/:username'
       },
       getAllProfiles: {
         method: 'GET',
-        path: '/api/github/profiles',
-        description: 'Get list of all stored analyzed profiles'
+        path: '/api/github/profiles'
       },
-      getProfile: {
+      getSingleProfile: {
         method: 'GET',
-        path: '/api/github/profile/:username',
-        description: 'Get local analyzed profile data for a single user'
+        path: '/api/github/profiles/:username'
       }
     }
   });
 });
 
-// Route Not Found Handler
+/**
+ * =========================
+ * 404 Route Handler
+ * =========================
+ */
+
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    error: `Endpoint not found: ${req.method} ${req.url}`
+    error: `Route not found: ${req.method} ${req.originalUrl}`
   });
 });
 
-// Global Error Handler
+/**
+ * =========================
+ * Global Error Handler
+ * =========================
+ */
+
 app.use((err, req, res, next) => {
-  console.error('🔥 Global Exception Intercepted:', err);
+  console.error('🔥 Global Error Handler:', err);
+
   res.status(500).json({
     success: false,
-    error: 'An internal server error occurred.',
+    error: 'Internal server error',
     details: err.message
   });
 });
 
 /**
- * Boots the database configuration, executes standard checks, and fires Express.
+ * =========================
+ * Start Server Function
+ * =========================
  */
+
 async function startServer() {
   try {
-    console.log('Initializing database connections...');
+    console.log('🔄 Initializing database connections...');
+
     await initializeDatabase();
-    
+
+    console.log('✅ Database initialized successfully.');
+
     app.listen(PORT, () => {
-      console.log(`\n======================================================`);
-      console.log(`🚀 GitHub Profile Analyzer API successfully started!`);
-      console.log(`🔊 Listening on Port: ${PORT}`);
-      console.log(`🔗 Local Address:     http://localhost:${PORT}`);
-      console.log(`======================================================\n`);
+      console.log('========================================');
+      console.log('🚀 GitHub Profile Analyzer API Started');
+      console.log(`🌐 Server running on port: ${PORT}`);
+      console.log(`🔗 Local URL: http://localhost:${PORT}`);
+      console.log('========================================');
     });
+
   } catch (error) {
-    console.error('⚡ Critical server start failure:', error.message);
+    console.error('⚡ Critical server start failure:');
+    console.error(error);
+
     process.exit(1);
   }
 }
 
+// Start Application
 startServer();
