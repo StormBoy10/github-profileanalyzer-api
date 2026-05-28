@@ -1,0 +1,31 @@
+{
+  "name": "github-profile-analyzer",
+  "version": "1.0.0",
+  "description": "An Express-based backend application that fetches public GitHub profile data, calculates rich profile insights, and stores them in MySQL.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "axios": "^1.16.1",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "mysql2": "^3.22.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "keywords": [
+    "github",
+    "profile",
+    "analyzer",
+    "mysql",
+    "express",
+    "api"
+  ],
+  "author": "Antigravity",
+  "license": "ISC"
+}
